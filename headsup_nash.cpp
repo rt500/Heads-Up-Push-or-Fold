@@ -154,3 +154,34 @@ std::pair<int, int> get_index(std::array<int,2> hand)
             return std::make_pair(std::min(v1,v2), std::max(v1,v2));
     }
 }
+
+
+/**
+ * Get the hand value that is used to determine the winner.
+ *
+ * This is the so called Two-Plus-Two Evaluator.
+ *
+ * The function can be called to 'precompute' the hand value
+ * to speed things up. This precomputed value can be used as the
+ * initial_val and you just give it the remaining cards. e.g. if
+ * you have 5 board cards. you can precompute for the 5 cards,
+ * then for one player you use this precomputed value as initial_val and
+ * their 2 cards to get the hand value. For the other player, you use the
+ * precomputed value as initial_val and use the other player's two cards
+ * to compute their hand value. This saves you from computing the value
+ * for the board twice.
+ *
+ * The player with the highest hand value is the winner. Note that hand
+ * values can be equal in which case you have a tie.
+ *
+ * @param cards The cards to get the value for in 'specific' representation.
+ * @param initial_val The initial value to help speed up the calculation.
+ * @return The evaluated value.
+ */
+int get_handvalue(std::span<int const> cards, int initial_val=53)
+{
+    int p = initial_val;
+    for (const auto& c: cards)
+        p = HR[p + c];
+  return p;
+}
