@@ -80,14 +80,19 @@
 // Two-Plus-Two evaluator.
 constexpr size_t HR_SIZE = 32487834;
 const std::string HR_FILE = "handranks.dat";
-std::array<int, HR_SIZE> handranks;
 const int NUM_DEFAULT_ITERATIONS = 1000000;
 
 // button outcome
 enum class Outcome {WIN, LOSE, TIE};
 enum class Action {PUSH, FOLD};
 
-void load_handranks();
+// The large array of numbers used to quickly computer the winner of a hand.
+// It is global to avoid strange behaviour. It is also capitalized like a
+// constant because it doesn't change after being initialized with
+// load_handranks() function.
+std::array<int, HR_SIZE> HANDRANKS;
+
+void load_handranks(std::string handranks_file);
 std::pair<int,int> get_index(std::array<int,2> hand);
 int get_handvalue(std::span<int const> cards, int initial=53);
 
@@ -98,7 +103,7 @@ int get_handvalue(std::span<int const> cards, int initial=53);
 void load_handranks(std::string handranks_file)
 {
   std::cout << "Loading " << handranks_file << " ...";
-  memset(&HR, 0, std::size(HR));
+  memset(&HANDRANKS, 0, std::size(HANDRANKS));
 
   // convert std::str to c-string using c_str()
   FILE* fin = fopen(handranks_file.c_str(), "rb");
@@ -108,8 +113,11 @@ void load_handranks(std::string handranks_file)
       exit(1);
   }
 
-  size_t elementsRead = fread(&HR, sizeof(HR[0]), std::size(HR), fin);
-  if (elementsRead != std::size(HR))
+  size_t elementsRead = fread(&HANDRANKS,
+                              sizeof(HANDRANKS[0]),
+                              std::size(HANDRANKS),
+                              fin);
+  if (elementsRead != std::size(HANDRANKS))
   {
     std::cerr << "error when reading " << handranks_file << std::endl;
     exit(2);
