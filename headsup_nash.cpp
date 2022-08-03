@@ -178,10 +178,10 @@ std::pair<int, int> get_index(std::array<int,2> hand)
  * @param initial_val The initial value to help speed up the calculation.
  * @return The evaluated value.
  */
-int get_handvalue(std::span<int const> cards, int initial_val=53)
+int get_handvalue(std::span<int const> cards, int initial_val)
 {
     int p = initial_val;
-    for (const auto& c: cards)
-        p = HR[p + c];
+    for (auto const& c: cards)
+        p = HANDRANKS[p + c];
   return p;
 }
