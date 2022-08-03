@@ -126,3 +126,32 @@ void load_handranks(std::string handranks_file)
   fclose(fin);
   std::cout << "Done" << std::endl;
 }
+
+
+/**
+ * Get Index representation from Specific Representation of a starter hand.
+ *
+ * e.g. Since a player's strategy for an unsuited hand is the same no matter
+ * the two suits of the hand, we can reduce the number of starter hands from
+ * (52 choose 2) = 1326 to 13x13 = 169. Where there are 3 broad categories:
+ * pairs, suited, unsuited.
+ *
+ * @param hand The specific representation.
+ * @return The index representation of the hand.
+ */
+std::pair<int, int> get_index(std::array<int,2> hand)
+{
+    int v1 = (hand[0] - 1) / 4;
+    int v2 = (hand[1] - 1) / 4;
+    if (v1 == v2) //check if pocket pair first
+        return std::make_pair(v1, v2);
+    else
+    {
+        int s1 = (hand[0] - 1) % 4;
+        int s2 = (hand[1] - 1) % 4;
+        if (s1 == s2)
+            return std::make_pair(std::max(v1, v2), std::min(v1,v2));
+        else
+            return std::make_pair(std::min(v1,v2), std::max(v1,v2));
+    }
+}
