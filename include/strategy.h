@@ -84,6 +84,14 @@ class Strategy
     * @return The index representation of the hand.
     */
     std::pair<int, int> get_index(int card1, int card2);
+
+
+    /**
+     * Print the strategy to cout.
+     *
+     * Unsuited cards in the bottom left, suited cards in upper right.
+     */
+    void print();
 };
 
 #endif
