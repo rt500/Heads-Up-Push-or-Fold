@@ -56,7 +56,7 @@
  * represents an unsuited hand and if the first number < second number,
  * it represents a suited hand in the index representation.
  *
- * Reference:
+ * References:
  * [1] Neller, T., Lanctot, M. An Introduction to Counterfactual Regret
  * Minimization[Computer Science Faculty Publications]. (2013). Retrieved
  * from https://cupola.gettysburg.edu/csfac/19/
