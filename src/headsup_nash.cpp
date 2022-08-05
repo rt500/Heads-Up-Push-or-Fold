@@ -72,6 +72,7 @@
 #include <sstream>
 #include <fstream>
 #include <span>
+#include "strategy.h"
 
 // To determine the winner of a hand you need to do
 // 7 look ups (using th 5 community cards AKA 'the board'
@@ -81,6 +82,7 @@
 constexpr size_t HR_SIZE = 32487834;
 const std::string HR_FILE = "handranks.dat";
 const int NUM_DEFAULT_ITERATIONS = 1000000;
+const int NUM_ACTIONS = 2;
 
 // button outcome
 enum class Outcome {WIN, LOSE, TIE};
@@ -184,4 +186,353 @@ int get_handvalue(std::span<int const> cards, int initial_val)
     for (auto const& c: cards)
         p = HANDRANKS[p + c];
   return p;
+}
+
+
+std::pair<Strategy, Strategy> get_nash(int num_iterations,
+    int sb_size, int bb_size, int stack_size)
+{
+  load_handranks("D:\\Code\\poker\\Evaluator\\handranks.dat"); 
+
+  // Initialize players' strategies
+  // note that these won't necessarily converge to the nash equilibrium
+  // it's the average that will converge to nash equilibrium
+  // initialize strategies to be coinflip whether to go all in
+  Strategy btn_strategy = Strategy(0.5);
+  Strategy bb_strategy = Strategy(0.5);
+  
+  // At the end, each array entry will be divided by the number of
+  // times the particular starting hand was dealt to get the the
+  // Nash Equilibrium strategy.
+  //  why a double?
+  std::array<std::array<double,13>,13> btn_strategy_sum = { 0 };
+  std::array<std::array<double,13>,13> bb_strategy_sum = { 0 };
+  
+  // keep track of the number of times a hand was randomly dealt to
+  // a particular player
+  std::array<std::array<unsigned int,13>,13> btn_hand_count = { 0 };
+  std::array<std::array<unsigned int,13>,13> bb_hand_count = { 0 };
+  
+  //  13x13x2 3D-array for the sum of regrets of each action (push/fold for
+  //  the button and call/fold for the big blind) for every
+  //  hand in chart format
+  //  std::array is hard to read so use long long [][][]
+  long long btn_regrets_sum[13][13][2] = { 0 };
+  long long bb_regrets_sum[13][13][2] = { 0 };
+
+  // apparently it's bad practice to declare outside of loop
+  // doing this for performance reasons
+  // mersenne twister pseudo random number generator
+  std::mt19937_64 prng;
+  prng.seed(std::random_device{}());
+
+  // randomizers to decide actions
+  std::uniform_real_distribution<double> distribution1(0.0, 1.0);
+  std::uniform_real_distribution<double> distribution2(0.0, 1.0);
+
+  // The random numbers used to decide actions
+  // Each strategy entry in btn_strategy and bb_strategy arrays
+  // is a probability. if r1 is less
+  // that that probability, button will push. If button pushed, then
+  // if r2 less than the strategy then call button's push.
+  double r1, r2;
+
+  //deck of cards
+  std::array<int,52> deck;
+  std::iota(deck.begin(), deck.end(), 1);
+
+  std::array<int,2> hand1, hand2, btn_hand, bb_hand;
+  std::array<int,5> board;
+
+  int board_val, hand1_val, hand2_val, btn_val, bb_val;
+  Action btn_action, bb_action;
+
+  std::pair<int,int> index1, index2, btn_index, bb_index;
+
+
+  // Utilities (utility is a game theory term) for each action
+  int btn_push_util, btn_fold_util, bb_push_util, bb_fold_util;
+  int btn_regret, bb_regret;
+  //norm is just sum of regrets summed over each potential action for particular hand
+  long long btn_norm, bb_norm;
+
+
+  for (int i = 0; i < num_iterations; i++)
+  {
+    // Shuffle using something similar to Fisher-Yates algorithm
+    // except stopped after 9 cards
+    // instead of shuffling the entire deck.
+    // This reduces the runtime by a noticeable amount.
+    // e.g. using std::shuffle is very slow
+    // 9 = 5 board cards + 2 cards from each player
+    for (int j = 0; j < 9; j++)
+    {
+        std::uniform_int_distribution<> shuffle_distrib(j,52-1);
+        std::swap(deck[j], deck[shuffle_distrib(prng)]);
+    }
+
+    hand1 = {deck[0], deck[1]};
+    hand2 = {deck[2], deck[3]};
+    board = {deck[4], deck[5], deck[6], deck[7], deck[8]};
+
+    // determine value of each hand dealt
+    board_val = get_handvalue(board);
+    hand1_val = get_handvalue(hand1, board_val);
+    hand2_val = get_handvalue(hand2, board_val);
+
+    index1 = get_index(hand1);
+    index2 = get_index(hand2);
+    
+    btn_hand = hand1;
+    bb_hand = hand2;
+    btn_val = hand1_val;
+    bb_val = hand2_val;
+    btn_index = index1;
+    bb_index = index2;
+      
+    // Swap the starting hands between the players and keep the board the
+    // same to simulate another round of play to reuse the p-values that
+    // have already been // looked up from the HANDRANKS.dat array. This
+    // essentially cuts the runtime in half.
+    // NOTE: total number of hands played will be 2 * num_iterations
+    for (int j = 0; j < 2; j++)
+    {
+      if (j == 1)
+      {
+        btn_hand = hand2;
+        bb_hand = hand1;
+        btn_val = hand2_val;
+        bb_val = hand1_val;
+        btn_index = index2;
+        bb_index = index1;
+      }
+
+      // button's hand outcome. either WIN, LOSS, TIE from above
+      Outcome hand_outcome;
+      if (btn_val > bb_val)
+        hand_outcome = Outcome::WIN;
+      else if (btn_val < bb_val)
+        hand_outcome = Outcome::LOSE;
+      else
+        hand_outcome = Outcome::TIE;
+
+
+      // get (randomized) actions using probability distributions
+      r1 = distribution1(prng);
+      if (r1 < btn_strategy.get_strategy(btn_index.first, btn_index.second))
+        btn_action = Action::PUSH;
+      else
+        btn_action = Action::FOLD;
+          
+      r2 = distribution2(prng);
+      if (r2 < bb_strategy.get_strategy(bb_index.first, bb_index.second))
+        bb_action = Action::PUSH;
+      else
+        bb_action = Action::FOLD;
+
+      // determine button's utility (game theory lingo)
+      if (bb_action == Action::PUSH)
+      {
+        if (hand_outcome == Outcome::WIN)
+          btn_push_util = stack_size;
+        else if (hand_outcome == Outcome::LOSE)
+          btn_push_util = -stack_size;
+        else
+          btn_push_util = 0;
+      }
+      else
+      {
+        btn_push_util = bb_size;
+      }
+
+      // calculate regret of NOT choosing other action
+      btn_regret = 0;
+      btn_fold_util = -sb_size;
+      if  (btn_action == Action::PUSH)
+        btn_regret = btn_fold_util - btn_push_util;
+      else
+        btn_regret = btn_push_util - btn_fold_util;
+
+      //bb regret of not choosing other action
+      bb_regret = 0;
+      if (btn_action == Action::FOLD)
+        bb_regret = 0;
+      else if (btn_action == Action::PUSH)
+      {
+        // bb push utility
+        // only relevant if both players don't fold
+        bb_push_util = 0;
+        if (hand_outcome == Outcome::WIN) //means btn won which means bb lost
+          bb_push_util = -stack_size;
+        else if (hand_outcome == Outcome::LOSE)
+          bb_push_util = stack_size;
+        else
+          bb_push_util = 0;
+
+        bb_fold_util = -bb_size;
+
+        if (bb_action == Action::FOLD)
+          bb_regret = bb_push_util - bb_fold_util;
+        else
+          bb_regret = bb_fold_util - bb_push_util;
+      }
+      
+      // add regrets to cumulative regrets array
+      if (btn_action == Action::PUSH)
+        btn_regrets_sum[btn_index.first][btn_index.second][1] += btn_regret;
+      else
+        btn_regrets_sum[btn_index.first][btn_index.second][0] += btn_regret;
+
+      if (bb_action == Action::PUSH)
+        bb_regrets_sum[bb_index.first][bb_index.second][1] += bb_regret;
+      else
+        bb_regrets_sum[bb_index.first][bb_index.second][0] += bb_regret;
+          
+          
+      // calculate btn normalization sum
+      // which is just the sum of regrets summed over each potential action
+      // see Rock Paper Scissors example in Neller, Lanctot paper
+      btn_norm = 0;
+      for (int k = 0; k < NUM_ACTIONS; k++)
+      {
+        if (btn_regrets_sum[btn_index.first][btn_index.second][k] > 0)
+          btn_norm += btn_regrets_sum[btn_index.first][btn_index.second][k];
+      }
+          
+      // update btn strategy
+      // regret doesnt measure how much you regret the action, it measures
+      // how much you regret NOT TAKING that action when you chose other actions
+      if (btn_norm > 0)
+      {
+        if (btn_regrets_sum[btn_index.first][btn_index.second][0] > 0)
+        { 
+          btn_strategy.set_strategy(btn_index.first, btn_index.second, 
+              btn_regrets_sum[btn_index.first][btn_index.second][0] /
+              (double) btn_norm);
+        }
+        else
+        {
+          btn_strategy.set_strategy(btn_index.first, btn_index.second, 0);
+        }
+      }
+      else
+      {
+        btn_strategy.set_strategy(btn_index.first,
+            btn_index.second, 1.0 / NUM_ACTIONS);
+      }
+          
+      // calculate bb normalization sum
+      bb_norm = 0;
+      for (int k = 0; k < NUM_ACTIONS; k++)
+      {
+        if (bb_regrets_sum[bb_index.first][bb_index.second][k] > 0)
+        {
+          bb_norm += bb_regrets_sum[bb_index.first][bb_index.second][k];
+        }
+      }
+          
+      // update big blind strategy
+      if (bb_norm > 0)
+      {
+        if (bb_regrets_sum[bb_index.first][bb_index.second][0] > 0)
+        { 
+          bb_strategy.set_strategy(bb_index.first, bb_index.second, 
+              bb_regrets_sum[bb_index.first][bb_index.second][0] /
+              (double) bb_norm);
+        }
+        else
+        {
+          bb_strategy.set_strategy(bb_index.first, bb_index.second, 0);
+        }
+      }
+      else
+      {
+        bb_strategy.set_strategy(bb_index.first, bb_index.second,
+            1.0 / NUM_ACTIONS);
+      }
+
+
+      //update strategy sums
+      btn_strategy_sum[btn_index.first][btn_index.second] +=
+        btn_strategy.get_strategy(btn_index.first, btn_index.second);
+      bb_strategy_sum[bb_index.first][bb_index.second] +=
+        bb_strategy.get_strategy(bb_index.first, bb_index.second);
+      
+      // count how many times a starting hand was played
+      btn_hand_count[btn_index.first][btn_index.second] += 1;
+      bb_hand_count[bb_index.first][bb_index.second] += 1;
+    }
+  }    
+  
+  // Once a sufficient number of hands have been simulated, 
+  // you can take the average over total number of hands for
+  // each potential starting hand to get the average strategy which has
+  // hopefully converged to a Nash Equilibrium. The Nash Equilibrium is
+  // not just one strategy (e.g. the button's strategy) but both strategies
+  // together form the Nash Equilibrium. The solution can be tested against
+  // another strategy using headsup_sims.cpp
+  Strategy ave_btn_strategy, ave_bb_strategy;
+  for (int i = 0; i < 13; i++)
+  {
+    for (int j = 0; j < 13; j++)
+    {
+      ave_btn_strategy.set_strategy(i, j,
+          btn_strategy_sum[i][j] /btn_hand_count[i][j]);
+      ave_bb_strategy.set_strategy(i, j,
+          bb_strategy_sum[i][j] / bb_hand_count[i][j]);
+    }
+  }
+  std::cout << std::fixed;
+  std::cout << std::setprecision(3);
+  std::cout << "iterations: " << num_iterations << std::endl << std::endl;
+  std::cout << "btn strategy" << std::endl;
+  std::string card_values = "AKQJT98765432";
+  std::cout << "  ";
+  for (auto const& c: card_values)
+  {
+    std::cout << "  " << c << "   ";
+  }
+  std::cout << std::endl;
+
+  for (int i = 13-1; i >= 0; i--)
+  {
+    std::cout << card_values[13-1-i] << " " ;
+      for (int j = 13-1; j >= 0; j--)
+      {
+          std::cout << ave_btn_strategy.get_strategy(i, j) << ' ';
+      }
+      std::cout << std::endl;
+  }
+  std::cout << std::endl;
+
+  std::cout << "bb strategy" << std::endl;
+  for (int i = 13-1; i >= 0; i--)
+  {
+      for (int j = 13-1; j >= 0; j--)
+      {
+          std::cout << ave_bb_strategy.get_strategy(i, j) << ' ';
+      }
+      std::cout << std::endl;
+  }
+  std::cout << std::endl;
+
+  return std::make_pair(ave_btn_strategy, ave_bb_strategy);
+}
+
+
+int main(int argc, char* argv [])
+{
+  int num_iterations;
+  if (argc == 2)
+  {
+    num_iterations = std::stoi(argv[1]);
+  }
+  else
+  {
+    num_iterations = 100000;
+  }
+
+  std::pair<Strategy, Strategy> strats = get_nash(num_iterations, 1,2,16);
+
+  return 0;
 }
