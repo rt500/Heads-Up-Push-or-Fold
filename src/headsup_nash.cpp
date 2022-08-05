@@ -400,7 +400,8 @@ std::pair<Strategy, Strategy> get_nash(int num_iterations,
           
       // update btn strategy
       // regret doesnt measure how much you regret the action, it measures
-      // how much you regret NOT TAKING that action when you chose other actions
+      // how much you regret NOT taking that action when you chose other
+      // actions
       if (btn_norm > 0)
       {
         if (btn_regrets_sum[btn_index.first][btn_index.second][0] > 0)

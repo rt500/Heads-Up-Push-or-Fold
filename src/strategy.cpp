@@ -66,22 +66,23 @@ void Strategy::set_strategy(int card1, int card2, double value,
 void Strategy::print()
 {
   std::cout << std::fixed;
-  std::cout << std::setprecision(3);
+  std::cout << std::setprecision(2);
   std::string card_values = "AKQJT98765432";
   
-  std::cout << "  ";
+  std::cout << "  |";
   for (auto const& c: card_values)
   {
-    std::cout << "  " << c << "   ";
+    std::cout << "  " << c << " |";
   }
+
   std::cout << std::endl;
 
   for (int i = 13-1; i >= 0; i--)
   {
-    std::cout << card_values[13-1-i] << " " ;
+    std::cout << card_values[13-1-i] << " |" ;
     for (int j = 13-1; j >= 0; j--)
     {
-      std::cout << strategy[i][j] << ' ';
+      std::cout << strategy[i][j] << "|";
     }
     std::cout << std::endl;
   }
