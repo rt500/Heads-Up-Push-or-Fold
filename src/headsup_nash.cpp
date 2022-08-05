@@ -64,7 +64,6 @@
  * [2] https://web.archive.org/web/20111103160502/http://www.codingthewheel.com/archives/poker-hand-evaluator-roundup#2p2
  */
 #include <iostream>
-#include <iomanip>
 #include <algorithm>
 #include <random>
 #include <cstring>
@@ -482,39 +481,6 @@ std::pair<Strategy, Strategy> get_nash(int num_iterations,
           bb_strategy_sum[i][j] / bb_hand_count[i][j]);
     }
   }
-  std::cout << std::fixed;
-  std::cout << std::setprecision(3);
-  std::cout << "iterations: " << num_iterations << std::endl << std::endl;
-  std::cout << "btn strategy" << std::endl;
-  std::string card_values = "AKQJT98765432";
-  std::cout << "  ";
-  for (auto const& c: card_values)
-  {
-    std::cout << "  " << c << "   ";
-  }
-  std::cout << std::endl;
-
-  for (int i = 13-1; i >= 0; i--)
-  {
-    std::cout << card_values[13-1-i] << " " ;
-      for (int j = 13-1; j >= 0; j--)
-      {
-          std::cout << ave_btn_strategy.get_strategy(i, j) << ' ';
-      }
-      std::cout << std::endl;
-  }
-  std::cout << std::endl;
-
-  std::cout << "bb strategy" << std::endl;
-  for (int i = 13-1; i >= 0; i--)
-  {
-      for (int j = 13-1; j >= 0; j--)
-      {
-          std::cout << ave_bb_strategy.get_strategy(i, j) << ' ';
-      }
-      std::cout << std::endl;
-  }
-  std::cout << std::endl;
 
   return std::make_pair(ave_btn_strategy, ave_bb_strategy);
 }
@@ -532,7 +498,24 @@ int main(int argc, char* argv [])
     num_iterations = 100000;
   }
 
-  std::pair<Strategy, Strategy> strats = get_nash(num_iterations, 1,2,16);
+  int small_blind = 1;
+  int big_blind = 2;
+  int stack_size = 20;
+
+  std::pair<Strategy, Strategy> strats = get_nash(num_iterations,
+     small_blind, big_blind, stack_size);
+
+  std::cout << "Button Strategy:" << std::endl;
+  strats.first.print();
+  std::cout << std::endl;
+  std::cout << "Big blind Strategy:" << std::endl;
+  strats.second.print();
+  std::cout << std::endl;
+  std::cout << "iterations: " << num_iterations << std::endl;
+  std::cout << "blinds: " << small_blind << "/" << big_blind << std::endl;
+  std::cout << "stack size (in chips): " << stack_size << std::endl;
+  std::cout << "Note: Unsuited in bottom left, suited in top right."
+            << std::endl;
 
   return 0;
 }
