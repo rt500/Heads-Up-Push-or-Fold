@@ -1,6 +1,7 @@
 #include "strategy.h"
 #include <utility>
 
+
 Strategy::Strategy(double value)
 {
   for (int i = 0; i < 13; i++)
@@ -31,7 +32,7 @@ std::pair<int, int> Strategy::get_index(int card1, int card2)
 {
     int v1 = (card1 - 1) / 4;
     int v2 = (card2 - 1) / 4;
-    if (v1 == v2) //check if pocket pair first
+    if (v1 == v2)  //check if pocket pair first
         return std::make_pair(v1, v2);
     else
     {
