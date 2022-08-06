@@ -451,7 +451,6 @@ std::pair<Strategy, Strategy> get_nash(int num_iterations,
             1.0 / NUM_ACTIONS);
       }
 
-
       //update strategy sums
       btn_strategy_sum[btn_index.first][btn_index.second] +=
         btn_strategy.get_strategy(btn_index.first, btn_index.second);
