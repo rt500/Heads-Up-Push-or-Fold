@@ -508,10 +508,10 @@ int main(int argc, char* argv [])
      small_blind, big_blind, stack_size, handranks_file);
 
   std::cout << "Button Strategy:" << std::endl;
-  strats.first.print();
+  strats.first.pprint();
   std::cout << std::endl;
   std::cout << "Big blind Strategy:" << std::endl;
-  strats.second.print();
+  strats.second.pprint();
   std::cout << std::endl;
   std::cout << "iterations: " << num_iterations << std::endl;
   std::cout << "blinds: " << small_blind << "/" << big_blind << std::endl;

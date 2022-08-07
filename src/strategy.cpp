@@ -63,7 +63,7 @@ void Strategy::set_strategy(int card1, int card2, double value,
 }
 
 
-void Strategy::print()
+void Strategy::pprint()
 {
   std::cout << std::fixed;
   std::cout << std::setprecision(2);
@@ -83,6 +83,22 @@ void Strategy::print()
     for (int j = 13-1; j >= 0; j--)
     {
       std::cout << strategy[i][j] << "|";
+    }
+    std::cout << std::endl;
+  }
+}
+
+
+void Strategy::print()
+{
+  std::cout << std::fixed;
+  std::cout << std::setprecision(3);
+  
+  for (int i = 13-1; i >= 0; i--)
+  {
+    for (int j = 13-1; j >= 0; j--)
+    {
+      std::cout << strategy[i][j] << " ";
     }
     std::cout << std::endl;
   }

@@ -87,6 +87,13 @@ class Strategy
 
 
     /**
+     * Pretty print the strategy to cout.
+     *
+     * Unsuited cards in the bottom left, suited cards in upper right.
+     */
+    void pprint();
+
+    /**
      * Print the strategy to cout.
      *
      * Unsuited cards in the bottom left, suited cards in upper right.
