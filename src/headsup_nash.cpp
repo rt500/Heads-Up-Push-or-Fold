@@ -189,9 +189,9 @@ int get_handvalue(std::span<int const> cards, int initial_val)
 
 
 std::pair<Strategy, Strategy> get_nash(int num_iterations,
-    int sb_size, int bb_size, int stack_size)
+    int sb_size, int bb_size, int stack_size, std::string hr_file)
 {
-  load_handranks("D:\\Code\\poker\\Evaluator\\handranks.dat"); 
+  load_handranks(hr_file); 
 
   // Initialize players' strategies
   // note that these won't necessarily converge to the nash equilibrium
@@ -488,6 +488,11 @@ std::pair<Strategy, Strategy> get_nash(int num_iterations,
 
 int main(int argc, char* argv [])
 {
+  std::string handranks_file = "D:\\Code\\poker\\Evaluator\\handranks.dat";
+  int small_blind = 1;
+  int big_blind = 2;
+  int stack_size = 20;
+
   int num_iterations;
   if (argc == 2)
   {
@@ -498,12 +503,9 @@ int main(int argc, char* argv [])
     num_iterations = 100000;
   }
 
-  int small_blind = 1;
-  int big_blind = 2;
-  int stack_size = 20;
 
   std::pair<Strategy, Strategy> strats = get_nash(num_iterations,
-     small_blind, big_blind, stack_size);
+     small_blind, big_blind, stack_size, handranks_file);
 
   std::cout << "Button Strategy:" << std::endl;
   strats.first.print();
