@@ -10,7 +10,7 @@ One of the most important algorithms that is needed is a fast method to determin
 
 
 ## Convergence
-Note that it is not necessarily the strategies which are being updated each round of simulated play that converge to the Nash Equilibrium rather it is the average (taken over the number of times a decision node was reached; that is, the average taken over the number of times the 2 card starter hand was dealt) of those strategies.
+Note that it is not necessarily the strategies which are being updated each round of simulated play that converge to the Nash Equilibrium rather it is the average (taken over the number of times a decision node was reached; that is, the average taken over the number of times the 2 card starter hand was dealt) of those strategies. See one of the authors of the original counterfacutal regret minimization paper's answer on [Quora](https://www.quora.com/What-is-an-intuitive-explanation-of-counterfactual-regret-minimization/answer/Michael-Johanson-2?ch=10&oid=9932436&share=8c0546a0&srid=MiWr&target_type=answer)
 
 ## "Index" vs "Specific" Representations
 The program outputs a Nash Equilibrium strategy for each player which consists of a 13x13 grid of probabilities which represents the frequency the player should randomly go all in with that hand. The indices of this grid start at 0 and suited unpaired hands are represented with the first index > second index (i.e. bottom left). A hand given in this 13x13 grid representation is what I call the "index" representation. This "index" representation is used because of the symmetry with regard to suits. e.g., the strategy for Ace of clubs, 3 of diamonds is the same for Ace of spades, 3 of hearts. The particular suit doesn't matter, the only thing that matters with regard to suits is if the two suits are the same or the two suits are different. So instead of dealing with (52 choose 2) = 1326 hands, you only have to deal with 13x13 = 169 hands. 
@@ -72,41 +72,41 @@ Windows:
     
 #### Example in Windows Powershell:
 ```
-PS D:\code\poker2> .\headsup_nash.exe 1000000
+PS D:\code\poker2> .\headsup_nash.exe 10000000
 Loading handranks.dat ...Done
 Button Strategy:
   |  A |  K |  Q |  J |  T |  9 |  8 |  7 |  6 |  5 |  4 |  3 |  2 |
 A |1.00|1.00|1.00|1.00|1.00|1.00|1.00|1.00|1.00|1.00|1.00|1.00|1.00|
-K |1.00|1.00|1.00|1.00|1.00|1.00|1.00|1.00|1.00|1.00|1.00|0.96|0.96|
-Q |1.00|1.00|1.00|1.00|0.96|1.00|0.99|1.00|1.00|0.98|1.00|0.97|0.99|
-J |1.00|1.00|1.00|1.00|1.00|0.99|1.00|0.96|0.89|0.56|0.86|0.94|0.74|
-T |1.00|1.00|0.99|1.00|1.00|0.95|1.00|0.97|1.00|0.96|0.87|0.11|0.30|
-9 |1.00|1.00|0.96|0.96|0.92|1.00|1.00|0.73|0.95|0.91|0.23|0.23|0.01|
-8 |1.00|1.00|1.00|0.99|0.85|0.95|1.00|1.00|0.85|0.39|0.01|0.00|0.33|
-7 |1.00|1.00|0.02|0.00|0.97|0.93|0.64|1.00|0.98|0.75|0.56|0.00|0.01|
-6 |1.00|1.00|0.93|0.00|0.14|0.00|0.32|0.13|1.00|0.96|0.08|0.98|0.01|
-5 |1.00|1.00|0.00|0.09|0.01|0.00|0.00|0.01|0.00|1.00|0.90|0.82|0.12|
-4 |1.00|1.00|0.03|0.01|0.01|0.00|0.00|0.00|0.02|0.00|1.00|0.03|0.01|
-3 |1.00|0.88|0.18|0.05|0.00|0.00|0.00|0.00|0.00|0.01|0.01|1.00|0.00|
-2 |0.99|0.99|0.02|0.01|0.01|0.00|0.00|0.01|0.00|0.00|0.01|0.00|1.00|
+K |1.00|1.00|1.00|1.00|1.00|1.00|1.00|1.00|1.00|1.00|1.00|1.00|1.00|
+Q |1.00|1.00|1.00|1.00|1.00|1.00|1.00|1.00|0.99|1.00|1.00|0.99|1.00|
+J |1.00|1.00|1.00|1.00|1.00|1.00|0.99|1.00|0.99|0.84|0.94|0.42|0.09|
+T |1.00|1.00|1.00|1.00|1.00|0.99|0.99|0.99|0.93|0.69|0.54|0.03|0.20|
+9 |1.00|1.00|1.00|1.00|0.99|1.00|1.00|0.98|0.98|0.96|0.01|0.00|0.00|
+8 |1.00|1.00|1.00|0.95|0.99|0.97|1.00|1.00|0.99|0.96|0.59|0.00|0.00|
+7 |1.00|0.99|0.59|0.01|0.00|0.85|0.99|1.00|1.00|1.00|0.87|0.01|0.01|
+6 |1.00|1.00|0.01|0.00|0.00|0.02|0.48|0.63|1.00|0.98|0.92|0.97|0.00|
+5 |1.00|1.00|0.04|0.00|0.00|0.01|0.00|0.01|0.17|1.00|0.99|0.97|0.56|
+4 |1.00|1.00|0.00|0.01|0.00|0.00|0.00|0.00|0.00|0.00|1.00|1.00|0.00|
+3 |1.00|0.98|0.00|0.01|0.00|0.00|0.00|0.00|0.00|0.00|0.00|1.00|0.02|
+2 |1.00|1.00|0.00|0.00|0.00|0.00|0.00|0.00|0.00|0.00|0.00|0.00|1.00|
 
 Big blind Strategy:
   |  A |  K |  Q |  J |  T |  9 |  8 |  7 |  6 |  5 |  4 |  3 |  2 |
-A |1.00|1.00|1.00|1.00|0.99|1.00|1.00|1.00|1.00|1.00|1.00|1.00|1.00|
-K |1.00|1.00|1.00|1.00|1.00|1.00|1.00|1.00|1.00|1.00|1.00|0.93|0.03|
-Q |1.00|1.00|1.00|1.00|0.93|1.00|0.91|1.00|0.59|0.43|0.08|0.22|0.05|
-J |1.00|1.00|1.00|1.00|1.00|0.78|0.93|0.42|0.04|0.06|0.03|0.00|0.00|
-T |1.00|1.00|0.99|1.00|1.00|0.55|0.17|0.14|0.03|0.03|0.01|0.00|0.01|
-9 |1.00|1.00|0.81|0.02|0.01|1.00|0.07|0.00|0.01|0.01|0.01|0.01|0.01|
-8 |1.00|1.00|0.41|0.01|0.01|0.01|1.00|0.02|0.00|0.00|0.00|0.00|0.00|
-7 |1.00|1.00|0.01|0.00|0.00|0.01|0.00|1.00|0.07|0.01|0.01|0.00|0.01|
-6 |1.00|0.99|0.07|0.00|0.02|0.00|0.00|0.00|1.00|0.01|0.00|0.00|0.00|
-5 |1.00|0.65|0.00|0.04|0.00|0.00|0.00|0.00|0.00|1.00|0.00|0.01|0.00|
-4 |1.00|0.16|0.00|0.00|0.00|0.00|0.00|0.00|0.00|0.00|1.00|0.00|0.00|
-3 |1.00|0.00|0.03|0.03|0.00|0.00|0.00|0.00|0.00|0.00|0.01|1.00|0.00|
-2 |1.00|0.05|0.01|0.00|0.00|0.00|0.00|0.00|0.00|0.00|0.01|0.00|1.00|
+A |1.00|1.00|1.00|1.00|1.00|1.00|1.00|1.00|1.00|1.00|1.00|1.00|1.00|
+K |1.00|1.00|1.00|1.00|1.00|1.00|1.00|1.00|1.00|1.00|0.99|1.00|1.00|
+Q |1.00|1.00|1.00|1.00|1.00|1.00|1.00|0.67|0.35|0.11|0.00|0.00|0.00|
+J |1.00|1.00|1.00|1.00|1.00|0.99|0.70|0.06|0.00|0.00|0.00|0.00|0.00|
+T |1.00|1.00|1.00|1.00|1.00|0.97|0.00|0.00|0.00|0.00|0.00|0.00|0.00|
+9 |1.00|1.00|1.00|0.39|0.00|1.00|0.02|0.00|0.00|0.00|0.00|0.00|0.00|
+8 |1.00|1.00|0.07|0.01|0.00|0.01|1.00|0.01|0.00|0.00|0.00|0.00|0.00|
+7 |1.00|0.99|0.00|0.00|0.00|0.00|0.00|1.00|0.00|0.00|0.01|0.00|0.00|
+6 |1.00|0.97|0.00|0.00|0.00|0.00|0.00|0.00|1.00|0.00|0.00|0.00|0.00|
+5 |1.00|0.87|0.00|0.00|0.00|0.00|0.00|0.00|0.00|1.00|0.00|0.00|0.00|
+4 |1.00|0.02|0.00|0.00|0.00|0.00|0.00|0.00|0.00|0.00|1.00|0.00|0.00|
+3 |1.00|0.00|0.00|0.00|0.00|0.00|0.00|0.00|0.00|0.00|0.00|1.00|0.00|
+2 |1.00|0.00|0.00|0.00|0.00|0.00|0.00|0.00|0.00|0.00|0.00|0.00|1.00|
 
-iterations: 1000000
+iterations: 10000000
 blinds: 1/2
 stack size (in chips): 20
 Note: Unsuited in bottom left, suited in top right.
