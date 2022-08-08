@@ -175,6 +175,12 @@ std::pair<int, int> get_index(std::array<int,2> hand)
  * The player with the highest hand value is the winner. Note that hand
  * values can be equal in which case you have a tie.
  *
+ * To determine the hand type (high card, flush, straight, etc) bit shift
+ * the hand value to the right by 12: handvalue >> 12. The number tells
+ * you the rank of the hand from 1 to 9 where no distinction is made
+ * between royal flush and straight flush because a royal flush is a 
+ * special case of a straight flush. It is easy to check for this though.
+ *
  * @param cards The cards to get the value for in 'specific' representation.
  * @param initial_val The initial value to help speed up the calculation.
  * @return The evaluated value.
@@ -488,11 +494,17 @@ std::pair<Strategy, Strategy> get_nash(int num_iterations,
 
 int main(int argc, char* argv [])
 {
-  std::string handranks_file = "D:\\Code\\poker\\Evaluator\\handranks.dat";
+  // put the path to the handranks.dat file here
+  std::string handranks_file = "handranks.dat";
+
+  // specify the blind structure and the effective stack size here
   int small_blind = 1;
   int big_blind = 2;
   int stack_size = 20;
 
+  // command line argument can be used to specify number of iterations to run
+  // more iterations gives a more accurate result
+  // but there are diminishing returns
   int num_iterations;
   if (argc == 2)
   {
