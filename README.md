@@ -38,7 +38,7 @@ The Nash Equilibrium is not always the one that can be the most profitable. If a
 
 
 
-It is interesting to note that in the Nash Equilibrium, the player in the big blind has an advantage of about 0.8 big blinds per 100 hands. This is evened out as the players swap positions.  This makes sense because usually the player "in position" (the player who acts last) has the advantage. The Nash Equilibrium strategy for the button is just the "least bad" strategy.
+It is interesting to note that in the Nash Equilibrium for effective stack size of 10bb, the player in the big blind has an advantage of about 0.8 big blinds per 100 hands. This is evened out as the players swap positions.  This makes sense because usually the player "in position" (the player who acts last) has the advantage. The Nash Equilibrium strategy for the button is just the "least bad" strategy.
 
 ## Beyond 2 Players:
 
