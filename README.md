@@ -63,16 +63,16 @@ Bill Chen's "The Mathematics of Poker" (2006) also published "Jam or Fold" table
 Linux:
 
     $ make
-    $ ./headsup_nash 1000000
+    $ bin/headsup_nash 1000000
     
 Windows:
 
     > mingw32-make
-    > .\headsup_nash.exe 1000000
+    > bin\headsup_nash.exe 1000000
     
 #### Example in Windows Powershell:
 ```
-PS D:\code\poker2> .\headsup_nash.exe 10000000
+PS D:\code\poker2> bin\headsup_nash.exe 10000000
 Loading handranks.dat ...Done
 Button Strategy:
   |  A |  K |  Q |  J |  T |  9 |  8 |  7 |  6 |  5 |  4 |  3 |  2 |

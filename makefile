@@ -10,12 +10,10 @@ endif
 ifeq ($(my_os), Windows)
 	target = headsup_nash.exe
 	delete_cmd = del
-	make_dir = mkdir
 endif
 ifeq ($(my_os), Linux)
 	target = headsup_nash
 	delete_cmd = rm -f
-	make_dir = mkdir -p
 endif
 
 # https://stackoverflow.com/questions/2514903/
@@ -34,11 +32,14 @@ bin/$(target): obj/headsup_nash.o obj/strategy.o | bin
 
 # https://stackoverflow.com/questions/12605051/
 obj:
-	@$(make_dir) $@
+	$(make_dir) $@
 
 bin:
-	@$(make_dir) $@
+	$(make_dir) $@
 
 .PHONY: clean
 clean:
-	@$(delete_cmd) obj/*.o
+	ifeq ($(my_os), Windows)
+		del obj\*.o
+	ifeq ($(my_os), Linux)
+		rm -f obj/*.o
