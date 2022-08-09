@@ -46,7 +46,7 @@ Although the program can be extended beyond 2 players (which I wasted many hours
 
 To find a good strategy for 3 player all-in or fold poker, a different method can be used that involves guessing your opponents' strategies and running the algorithm on it except instead of updating all the strategies, you keep those two opponents' strategies fixed. This would not necessarily give a Nash Equilibrium strategy but it would give the most exploitative strategy, ie the most profitable strategy (if your opponents keep their strategies fixed which is unlikely as most players adjust their strategy to what the other players are doing)
 
-# Other Works
+## Other Works
 
 [Holdem Resources](https://www.holdresources.net) published a chart and says to compute the chart, they stepped through every possible "effective stack size" (the minimum of the two players' stack sizes) of big blinds in 0.05 bb increments.
 
@@ -58,7 +58,7 @@ Bill Chen's "The Mathematics of Poker" (2006) also published "Jam or Fold" table
 - make or Mingw32-make (for Windows)
 - handranks.dat (the 123MB file of 30 million integers from the two-plus-two evaluator)
 
-# To Build and Run
+## To Build and Run
 
 Linux:
 
@@ -112,7 +112,7 @@ stack size (in chips): 20
 Note: Unsuited in bottom left, suited in top right.
 ```
 
-# Future Directions
+## Future Directions
 
 - solve the full heads up no limit texas holdem game
 - GUI
